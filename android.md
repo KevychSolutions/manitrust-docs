@@ -6,24 +6,24 @@ GitHub of ManiTrust Service.
 First, add authToken that we provide to get the library with jitpack.io.
 In gradle.properties include this line:
 ```
-authToken=AUTH_TOKEN
+  authToken=AUTH_TOKEN
 ```
 Next, include JitPack in the repositories list:
-  ```groovy
+```groovy
   buildscript {
-    repositories {
-        maven {
-          url 'https://jitpack.io'
-          credentials { userName authToken }
-        }
-    }
+      repositories {
+          maven {
+              url 'https://jitpack.io'
+              credentials { userName authToken }
+          }
+      }
   }
-  ```
+```
 Now you can add the dependency:
 ```groovy
-dependencies {
-  implementation 'com.github.KevychSolutions:manitrust-android:Tag'
-}
+  dependencies {
+      implementation 'com.github.KevychSolutions:manitrust-android:Tag'
+  }
 ```
 ## Setup project
 ### Keys and tokens
@@ -37,85 +37,106 @@ You provide:
 - Firebase WEB API Key
 
 ### Setup Firebase
-  1) Add the firebase to the project [FirebaseSetup](https://firebase.google.com/docs/android/setup)  <br />
-  2) Generate an Web API Key and provide to the admin  <br />
-  3) Create firebase messging service [CreateFirebaseMessagingService](https://firebase.google.com/docs/reference/android/com/google/firebase/messaging/FirebaseMessagingService)  <br />
-  4) Generate FCM Token [GenerateFCMToken](https://firebase.google.com/docs/cloud-messaging/android/client#retrieve-the-current-registration-token)  <br />
+  1. Add the firebase to the project [FirebaseSetup](https://firebase.google.com/docs/android/setup)  <br />
+  2. Generate an Web API Key and provide to the admin  <br />
+  3. Create firebase messging service [CreateFirebaseMessagingService](https://firebase.google.com/docs/reference/android/com/google/firebase/messaging/FirebaseMessagingService)  <br />
+  4. Generate FCM Token [GenerateFCMToken](https://firebase.google.com/docs/cloud-messaging/android/client#retrieve-the-current-registration-token)  <br />
+
+
+## Permissions
+To use our SDK you must grant the following permission:
+- `"android.permission.INTERNET"` - to have access to Internet <br />
+- `"android.permission.READ_CONTACTS"` - to be able read contacts <br />
+- `"android.permission.WRITE_CONTACTS"` - to be able create new contacts <br />
+
 
 ## Usage
+
+In this SDK you will work with the next classes: <br />
+- **RegistrationToken**. This class is responsible for sending user's device token and phone number to the server. <br /> To get instance of this class you should use `RegistrationTokenBuilder` class, which builds `RegistrationToken`. <br />
+- **MessageHandler**. This class is responsible for handling the message we receive from Firebase Messaging Service.
+ You have to write your own Firebase Service, that can receive the push notification and
+ then pass the message from the service to this class.  <br /> To get instance of this class you should use `MessageHandlerBuilder` class, which builds `MessageHandler`.
+- **Result**(Optional). You can also handle result from any operation you will do with classes above.
+ 
+ Here is descriprion how to use ManiTrust SDK on Kotlin and Java programming languages: 
+
 ### Kotlin
-  1) Create the RegistrationToken class using server API key class. Provide Token and phone number to the server via this class:
+  1. Create the `RegistrationToken` class using server API key class. Provide Token and phone number to the server via this class:
   ```kotlin
-val registrationToken = RegistrationTokenBuilder().build(apiKey, projectId, hostUrl)
-registrationToken.sendTokenAndPhone(fcmToken, phoneNumber)
+  val registrationToken: RegistrationToken = RegistrationTokenBuilder()
+               .build(apiKey, projectId, hostUrl)
+  val sendTokenAndPhoneResult: Result = registrationToken
+               .sendTokenAndPhone(fcmToken, phoneNumber)
   ```
-  2) Create firebase messaging service to receive notifications and then pass them to our SDK:
+  2. Create firebase messaging service to receive notifications and then pass them to our SDK:
   [CreateFirebaseMessagingService](https://firebase.google.com/docs/reference/android/com/google/firebase/messaging/FirebaseMessagingService)  <br />
-  3) In firebase messaging class call our sdk like this:
+  3. In firebase messaging class call our sdk like this:
   ```kotlin
-    override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        super.onMessageReceived(remoteMessage)
-        val msgHandler = MessageHandlerBuilder().build(applicationContext)
-        msgHandler.handleMessage(remoteMessage.data)
-        ...
-    }
+  override fun onMessageReceived(remoteMessage: RemoteMessage) {
+           super.onMessageReceived(remoteMessage)
+           val messageHandler: MessageHandler = MessageHandlerBuilder()
+                   .build(applicationContext)
+           val handleMessageResult: Result = messageHandler
+                   .handleMessage(remoteMessage.data)
+           ...
+  }
   ```
   Or better use suspend methods:
   ```kotlin
-    val registrationToken = RegistrationTokenBuilder().build(apiKey, projectId, hostUrl)
-    CoroutineScope(Dispatchers.IO).launch{
-        registrationToken.sendTokenAndPhoneSuspend(fcmToken, phoneNumber)
-    }
+  val registrationToken: RegistrationToken = RegistrationTokenBuilder()
+                .build(apiKey, projectId, hostUrl)
+  CoroutineScope(Dispatchers.IO).launch {
+           val sendTokenAndPhoneResult: Result = registrationToken
+                    .sendTokenAndPhoneSuspend(fcmToken, phoneNumber)
+  }
   ```
   ```kotlin
-    override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        super.onMessageReceived(remoteMessage)
-        val messageHandler: MessageHandler = MessageHandlerBuilder().build(applicationContext)
-        CoroutineScope(Dispatchers.IO).launch {
-            val handledMessage = messageHandler.handleMessageSuspend(remoteMessage.data)
-            if (handledMessage.isOK){
-                ...
-            } else {
-                ...
-            }
-        }
-    }
+  override fun onMessageReceived(remoteMessage: RemoteMessage) {
+           super.onMessageReceived(remoteMessage)
+           val messageHandler: MessageHandler = MessageHandlerBuilder()
+                   .build(applicationContext)
+           CoroutineScope(Dispatchers.IO).launch {
+               val handledMessageResult: Result = messageHandler
+                       .handleMessageSuspend(remoteMessage.data)
+               if (handledMessageResult.isOK){
+                   ...
+               } else {
+                   ...
+               }
+           }
+  }
   ```
 
 ### Java
-  1) Create the RegistrationToken class using server API key class. Provide Token and phone number to the server via this class:
+  1. Create the `RegistrationToken` class using server API key class. Provide Token and phone number to the server via this class:
   ```java
-    RegistrationToken registrationToken = new RegistrationTokenBuilder()
-             .build(apiKey, projectId, hostUrl);
-    registrationToken.sendTokenAndPhone(fcmToken, phoneNum);        
+  RegistrationToken registrationToken = new RegistrationTokenBuilder()
+               .build(apiKey, projectId, hostUrl);
+  Result sendTokenAndPhoneResult = registrationToken
+               .sendTokenAndPhone(fcmToken, phoneNum);        
   ```
-  2) Create firebase messaging service to receive notifications and then pass them to our SDK:
+  2. Create firebase messaging service to receive notifications and then pass them to our SDK:
   [CreateFirebaseMessagingService](https://firebase.google.com/docs/reference/android/com/google/firebase/messaging/FirebaseMessagingService)  <br />
-  3) In firebase messaging class call our sdk like this:
+  3. In firebase messaging class call our sdk like this:
   ```java
-    @Override
-    public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
-        super.onMessageReceived(remoteMessage);
-        MessageHandler msgHandler = new MessageHandlerBuilder()
-                .build(getApplicationContext());
-        msgHandler.handleMessage(remoteMessage.getData());
-      ...
-    }
+  @Override
+  public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
+           super.onMessageReceived(remoteMessage);
+           MessageHandler messageHandler = new MessageHandlerBuilder()
+                   .build(getApplicationContext());
+           Result handleMessageResult = messageHandler
+                   .handleMessage(remoteMessage.getData());
+  }
   ```
   
-### Warning! 
+### Pay attention! 
 
-  In Java project you should call methods: sendTokenAndPhone() and handleMessage() in another thread for main thread safety!
+  In Java project you should execute methods: `sendTokenAndPhone()` and `handleMessage()` in new thread for main thread safety!
   
-## Addinitonal info
-
-### Release tags
-
-[Release](https://jitpack.io/#KevychSolutions/manitrust-android/0.0.1) - jitpack.io
-
-To create the pre-release version of sdk that can be distributed, just push to the master. The github will create the release by itself. Then jitpack will use this release to publish it as privatly-distributed SDK. To change the version of the tag, go to /github/workflows/publish_version.yml and change automatic_release_tag attribute. To finally create release version (currently it's marked as pre-release) change the prerelease attribute to "false".
-
-<br />
+## More Documentation
+See in GitHub - [Pages](https://github.com/VStetsiukKevych/Pages)
+<hr />
 <br />
 
-&nbsp;&nbsp;&nbsp;[<Back](index)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Next>](ios) (IOS)
+[<Back](index) (SDKs)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(IOS) [Next>](ios)
