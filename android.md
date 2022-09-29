@@ -135,7 +135,7 @@ In this SDK you will work with the next classes: <br />
   In Java project you should execute methods: `sendTokenAndPhone()` and `handleMessage()` in new thread for main thread safety!
   
 ## More Documentation
-See in GitHub - [Pages](https://github.com/VStetsiukKevych/Pages)
+See in GitHub - [Pages](https://github.com/KevychSolutions/manitrust-docs/)
 <hr />
 <br />
 
