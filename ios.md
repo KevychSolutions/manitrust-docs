@@ -69,4 +69,4 @@ The framework is released automatically when the code is pushed into the main br
 <hr />
 <br />
 
-&nbsp;&nbsp;&nbsp;[<Back](index)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Next>](android) (Android)
+[<Back](index) (SDKs)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Android) [Next>](android)
