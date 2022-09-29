@@ -3,6 +3,7 @@ GitHub of ManiTrust Service.
 
 ## Installation
 > This library is project published with JitPack
+
 First, add authToken that we provide to get the library with jitpack.io.
 In gradle.properties include this line:
 ```
